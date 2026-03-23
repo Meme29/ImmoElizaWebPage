@@ -1,0 +1,20 @@
+{
+  "area": 190,
+  "property_type": "House",
+  "subtype": "Villa",
+  "rooms_number": 4,
+  "zip_code": 5030,
+  "locality": "Gembloux",
+  "land_area": 1903,
+  "garden": true,
+  "garden_area": 0,
+  "equipped_kitchen": false,
+  "swimming_pool": false,
+  "furnished": false,
+  "open_fire": false,
+  "terrace": true,
+  "terrace_area": 0,
+  "facades_number": 0,
+  "building_state": "GOOD"
+}
+

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ImmoEliza - Estimation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:        #f5f0e8;
+      --surface:   #ffffff;
+      --ink:       #1a1510;
+      --muted:     #8a7f72;
+      --accent:    #c8622a;
+      --accent-lt: #f0ddd0;
+      --border:    #e2d9ce;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.5;
+    }
+
+    header {
+      position: relative; z-index: 1;
+      padding: 3rem 2rem 2rem;
+      max-width: 920px; margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 900;
+      letter-spacing: -0.02em; line-height: 1;
+    }
+    .logo span { color: var(--accent); }
+    .tagline { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; }
+
+    main {
+      position: relative; z-index: 1;
+      max-width: 920px; margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) { main { grid-template-columns: 1fr; } }
+
+    .form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem; font-weight: 700;
+      line-height: 1.2; margin-bottom: 0.4rem;
+    }
+    .form-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; font-weight: 300; }
+
+    .section-label {
+      font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
+      font-weight: 600; color: var(--accent);
+      margin: 1.75rem 0 0.9rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .field-grid .full { grid-column: 1 / -1; }
+    .field { display: flex; flex-direction: column; gap: 0.3rem; }
+
+    label { font-size: 0.72rem; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; }
+
+    input[type="text"], input[type="number"], select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem; color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,98,42,0.1);
+    }
+
+    .toggle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+    .toggle input { display: none; }
+    .toggle label {
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      padding: 0.6rem 0.5rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+      cursor: pointer; font-size: 0.78rem; font-weight: 500; color: var(--muted);
+      transition: all 0.15s; user-select: none;
+    }
+    .toggle input:checked + label { background: var(--accent-lt); border-color: var(--accent); color: var(--accent); }
+
+    .btn-submit {
+      width: 100%; margin-top: 2rem; padding: 1rem;
+      background: var(--ink); color: var(--bg);
+      border: none; border-radius: 8px;
+      font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 600;
+      letter-spacing: 0.03em; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-submit:hover { background: var(--accent); transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .loader {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.6s linear infinite;
+      vertical-align: middle; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Result panel */
+    .result-panel { position: sticky; top: 2rem; }
+
+    .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+
+    .result-header { background: var(--ink); padding: 1.25rem 1.5rem; color: var(--bg); }
+    .result-header-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.5; margin-bottom: 0.3rem; }
+    .result-header-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+
+    .result-body { padding: 1.5rem; }
+
+    .steps { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; }
+    .step { flex: 1; height: 3px; border-radius: 2px; background: var(--border); transition: background 0.4s; }
+    .step.active { background: var(--accent); }
+    .step.done   { background: var(--ink); }
+    .step-label  { font-size: 0.7rem; color: var(--muted); margin-bottom: 1rem; min-height: 1rem; }
+
+    .result-placeholder { text-align: center; padding: 2rem 1rem; color: var(--muted); }
+    .result-placeholder-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.3; }
+    .result-placeholder p { font-size: 0.85rem; line-height: 1.5; }
+
+    .price-display { display: none; }
+    .price-display.show { display: block; animation: fadeIn 0.5s ease; }
+
+    .price-main {
+      text-align: center; padding: 1.5rem 0 1rem;
+      border-bottom: 1px solid var(--border); margin-bottom: 1.25rem;
+    }
+    .price-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    .price-value { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 900; color: var(--accent); line-height: 1; }
+    .price-currency { font-size: 1.2rem; font-weight: 400; vertical-align: super; margin-right: 2px; }
+    .price-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; }
+
+    .summary-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;
+    }
+    .summary-item:last-child { border-bottom: none; }
+    .summary-key { color: var(--muted); }
+    .summary-val { font-weight: 600; }
+
+    .error-box {
+      display: none; background: #fdf0ee; border: 1px solid #f0c4bb;
+      border-radius: 8px; padding: 1rem; font-size: 0.82rem;
+      color: #8b2f1f; margin-top: 1rem; line-height: 1.5;
+    }
+    .error-box.show { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Immo<span>Eliza</span></div>
+  <div class="tagline">Property Valuation - Belgium</div>
+</header>
+
+<main>
+
+  <!-- FORM -->
+  <div>
+    <h1 class="form-title">Estimate your<br>property</h1>
+    <p class="form-sub">Fill in the details of your property to get an instant valuation.</p>
+
+    <div class="section-label">Location</div>
+    <div class="field-grid">
+      <div class="field">
+        <label for="locality">City / Municipality</label>
+        <input type="text" id="locality" placeholder="ex: Namur"/>
+      </div>
+      <div class="field">
+        <label for="zip_code">Postal code</label>
+        <input type="number" id="zip_code" placeholder="ex: 5000"/>
+      </div>
+    </div>
+
+    <div class="section-label">Property type</div>
+    <div class="field-grid">
+      <div class="field">
+        <label for="property_type">Type</label>
+        <select id="property_type">
+          <option value="House">House</option>
+          <option value="Apartment">Apartment</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="subtype">Subtype</label>
+        <select id="subtype">
+          <option value="HOUSE">House</option>
+          <option value="VILLA">Villa</option>
+          <option value="APARTMENT">Apartment</option>
+          <option value="DUPLEX">Duplex</option>
+          <option value="TRIPLEX">Triplex</option>
+          <option value="BUNGALOW">Bungalow</option>
+          <option value="COTTAGE">Cottage</option>
+          <option value="MANOR_HOUSE">Manor house</option>
+          <option value="MIXED_USE_BUILDING">Mixed-use building</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-label">Areas</div>
+    <div class="field-grid">
+      <div class="field">
+        <label for="area">Living area (m2)</label>
+        <input type="number" id="area" placeholder="e.g. 150"/>
+      </div>
+      <div class="field">
+        <label for="land_area">Land area (m2)</label>
+        <input type="number" id="land_area" placeholder="e.g. 500" value="0"/>
+      </div>
+    </div>
+
+    <div class="section-label">Features</div>
+    <div class="field-grid">
+      <div class="field">
+        <label for="rooms_number">Number of bedrooms</label>
+        <input type="number" id="rooms_number" placeholder="e.g. 3"/>
+      </div>
+      <div class="field">
+        <label for="facades_number">Number of facades</label>
+        <input type="number" id="facades_number" placeholder="e.g. 4" value="0"/>
+      </div>
+      <div class="field full">
+        <label for="building_state">Building condition</label>
+        <select id="building_state">
+          <option value="TO REBUILD">To demolish</option>
+          <option value="TO RENOVATE">To renovate</option>
+          <option value="GOOD" selected>Good condition</option>
+          <option value="JUST RENOVATED">Renovated</option>
+          <option value="NEW">New</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-label">Options</div>
+    <div class="toggle-grid">
+      <div class="toggle"><input type="checkbox" id="garden"/><label for="garden"> Garden</label></div>
+      <div class="toggle"><input type="checkbox" id="terrace"/><label for="terrace"> Terrace</label></div>
+      <div class="toggle"><input type="checkbox" id="swimming_pool"/><label for="swimming_pool"> Pool</label></div>
+      <div class="toggle"><input type="checkbox" id="furnished"/><label for="furnished"> Furnished</label></div>
+      <div class="toggle"><input type="checkbox" id="equipped_kitchen"/><label for="equipped_kitchen"> Fitted kitchen</label></div>
+      <div class="toggle"><input type="checkbox" id="open_fire"/><label for="open_fire"> Open fire</label></div>
+    </div>
+
+    <button class="btn-submit" id="btn-estimate" onclick="estimate()">Estimate price</button>
+    <div class="error-box" id="error-box"></div>
+  </div>
+
+  <!-- RESULT PANEL -->
+  <div class="result-panel">
+    <div class="result-card">
+      <div class="result-header">
+        <div class="result-header-label">Result</div>
+        <div class="result-header-title">Price estimate</div>
+      </div>
+      <div class="result-body">
+        <div class="steps">
+          <div class="step" id="step-1"></div>
+          <div class="step" id="step-2"></div>
+        </div>
+        <div class="step-label" id="step-label">Fill in the form</div>
+
+        <div class="result-placeholder" id="placeholder">
+          <div class="result-placeholder-icon"></div>
+          <p>Your estimate will appear here once you have filled in the form.</p>
+        </div>
+
+        <div class="price-display" id="price-display">
+          <div class="price-main">
+            <div class="price-label">Estimated price</div>
+            <div class="price-value">
+              <span class="price-currency">EUR</span>
+              <span id="price-val">-</span>
+            </div>
+            <div class="price-meta" id="price-meta"></div>
+          </div>
+          <div id="summary"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function setStep(n, label) {
+    document.getElementById('step-label').textContent = label;
+    for (let i = 1; i <= 2; i++) {
+      const el = document.getElementById(`step-${i}`);
+      el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+    }
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = msg;
+    box.classList.add('show');
+  }
+
+  function hideError() { document.getElementById('error-box').classList.remove('show'); }
+  function val(id)     { return document.getElementById(id).value; }
+  function checked(id) { return document.getElementById(id).checked; }
+
+  async function estimate() {
+    hideError();
+
+    const required = { locality: 'City', zip_code: 'Postal code', area: 'Area', rooms_number: 'Bedrooms' };
+    for (const [id, name] of Object.entries(required)) {
+      if (!val(id)) { showError(`The field "${name}" is required.`); return; }
+    }
+
+    const btn = document.getElementById('btn-estimate');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span>Processing...';
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('price-display').classList.remove('show');
+
+    const payload = {
+      area:             parseInt(val('area')),
+      property_type:    val('property_type'),
+      subtype:          val('subtype'),
+      rooms_number:     parseInt(val('rooms_number')),
+      zip_code:         parseInt(val('zip_code')),
+      locality:         val('locality'),
+      land_area:        parseInt(val('land_area')) || 0,
+      garden:           checked('garden'),
+      garden_area:      0,
+      equipped_kitchen: checked('equipped_kitchen'),
+      swimming_pool:    checked('swimming_pool'),
+      furnished:        checked('furnished'),
+      open_fire:        checked('open_fire'),
+      terrace:          checked('terrace'),
+      terrace_area:     0,
+      facades_number:   parseInt(val('facades_number')) || 0,
+      building_state:   val('building_state'),
+    };
+
+    try {
+      // Step 1 - Preprocessing
+      setStep(1, 'Preprocessing data...');
+      const prepRes = await fetch('/preprocess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!prepRes.ok) {
+        const err = await prepRes.json();
+        throw new Error(err.detail || 'Error during preprocessing.');
+      }
+      const prepData = await prepRes.json();
+
+      // Step 2 - Prediction
+      setStep(2, "Calculating estimate...");
+      const predRes = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prepData)
+      });
+      if (!predRes.ok) {
+        const err = await predRes.json();
+        throw new Error(err.detail || 'Error during prediction.');
+      }
+      const predData = await predRes.json();
+
+      // Display
+      setStep(3, 'Estimation complete OK');
+      document.getElementById('price-val').textContent =
+        new Intl.NumberFormat('fr-BE').format(Math.round(predData.predicted_price));
+      document.getElementById('price-meta').textContent =
+        `${val('locality')} - ${val('area')} m2`;
+
+      const stateLabel = document.getElementById('building_state');
+      const items = [
+        ['Type',      val('property_type') === 'House' ? 'House' : 'Apartment'],
+        ['Area',      `${val('area')} m2`],
+        ['Bedrooms',  val('rooms_number')],
+        ['Condition', stateLabel.options[stateLabel.selectedIndex].text],
+        ['Garden',    checked('garden')        ? 'Yes' : 'No'],
+        ['Pool',      checked('swimming_pool') ? 'Yes' : 'No'],
+      ];
+      document.getElementById('summary').innerHTML = items
+        .map(([k, v]) => `<div class="summary-item"><span class="summary-key">${k}</span><span class="summary-val">${v}</span></div>`)
+        .join('');
+
+      document.getElementById('price-display').classList.add('show');
+
+    } catch (err) {
+      showError(err.message);
+      setStep(0, 'An error occurred');
+      document.getElementById('placeholder').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Estimate price';
+    }
+  }
+</script>
+
+</body>
+</html>
