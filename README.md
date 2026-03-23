@@ -19,25 +19,25 @@ uvicorn main:app --reload
 
 ## 🗂️ Project structure
 
-📦 project
-├── 🚀 main.py                # API FastAPI (entry point)
-│
-├── 📂 data                  # Computed distances between cities and 5 big cities of Belgium
-│   └── distances.csv
-│
-├── 📂 pages                 # Frontend (HTML)
-│   └── homepage.html
-│
-├── 📂 preprocessing         # Pre-processing of data
-│   ├── preprocessor.py
-│   └── distances.py
-│
-├── 📂 predicts              # Predictions
-│   └── predictor.py
-│
-├── 📂 models                # trained models
-│   ├── random_forest_model.pkl
-│   └── ...
+📦 project  
+├── 🚀 main.py                # API FastAPI (entry point)   
+│  
+├── 📂 data                  # Computed distances between cities and 5 big cities of Belgium  
+│   └── distances.csv  
+│  
+├── 📂 pages                 # Frontend (HTML)  
+│   └── homepage.html  
+│  
+├── 📂 preprocessing         # Pre-processing of data  
+│   ├── preprocessor.py  
+│   └── distances.py  
+│  
+├── 📂 predicts              # Predictions  
+│   └── predictor.py  
+│  
+├── 📂 models                # trained models  
+│   ├── random_forest_model.pkl  
+│   └── ...  
 
 
 ## 🤝 Contributing
