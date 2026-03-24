@@ -12,5 +12,5 @@ app.include_router(predictor.router, prefix="/predict", tags=["Predictor"])
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    with open("./pages/homepage.html") as f:
+    with open("./pages/homepage.html", encoding="utf-8") as f:
         return f.read()

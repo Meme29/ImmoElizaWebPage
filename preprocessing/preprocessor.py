@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import pandas as pd
 import joblib
-from .distances import get_distances, cities
+from .distances import get_distances, cities, validate_locality_zip, _get_postal_df
 
 router = APIRouter()
 
@@ -27,6 +27,12 @@ class PropertyInput(BaseModel):
 
     def to_df(self) -> pd.DataFrame:
         return pd.DataFrame([self.model_dump()])
+    
+@router.get("/localities")
+def get_all_localities():
+    df = _get_postal_df()
+    result = df[['locality', 'zip_code']].drop_duplicates(subset=['locality']).dropna()
+    return {"localities": result.to_dict(orient='records')}
 
 
 @router.post("", tags=["Preprocessor"])
@@ -37,6 +43,14 @@ def clean(property: PropertyInput):
     #       Drop useless columns    #
     # ----------------------------- #
     df.drop(columns=['terrace_area', 'garden_area', 'open_fire', 'equipped_kitchen'], inplace=True)
+
+    # ----------------------------- #
+    #   Validation localité / ZIP   #
+    # ----------------------------- #
+    error = validate_locality_zip(property.locality, property.zip_code)
+    if error:
+        print("Validation error:", error)
+        raise HTTPException(status_code=400, detail="Locality doesn't match ZIP code.")
 
     # ----------------------------- #
     #   Type of property mapping    #
@@ -89,17 +103,21 @@ def clean(property: PropertyInput):
     encoding_map = joblib.load('preprocessing/encoding_map.pkl')
     m = encoding_map['Subtype of property']
 
-    df['Subtype of property encoded'] = df['subtype'].map(m['map']).fillna(m['global_median'])
+    df['Subtype of property encoded'] = df['subtype'].str.title().map(m['map']).fillna(m['global_median'])
     df.drop(columns=['subtype'], inplace=True)
 
     # ----------------------------- #
     #   Distance to big cities      #
     # ----------------------------- #
     locality = df['locality'].iloc[0]
-    dist = get_distances(locality)
+    try :
+        dist = get_distances(locality)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Locality '{locality}' not found and geocoding failed.")
 
     for city in cities:
         df[f'dist_{city}'] = dist[f'dist_{city}']
+    df['dist_sea'] = dist['dist_sea']
 
     df.drop(columns=['locality'], inplace=True)
 
@@ -146,6 +164,7 @@ def clean(property: PropertyInput):
         'dist_bruges',
         'dist_namur',
         'dist_leuven',
+        'dist_sea',
     ]
 
     df = df[expected_cols]

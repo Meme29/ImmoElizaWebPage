@@ -28,19 +28,27 @@ class PredictionInput(BaseModel):
     dist_bruges:                 float = Field(..., alias='dist_bruges')
     dist_namur:                  float = Field(..., alias='dist_namur')
     dist_leuven:                 float = Field(..., alias='dist_leuven')
+    dist_sea:                    float = Field(..., alias='dist_sea')
+
 
     model_config = {'populate_by_name': True}
 
     def to_df(self) -> pd.DataFrame:
         return pd.DataFrame([self.model_dump(by_alias=True)])
     
+
+import warnings
+warnings.filterwarnings('ignore')
+
+models = {
+    'xgboost': joblib.load('models/xgboost_model.pkl'),
+    'random_forest': joblib.load('models/random_forest_model.pkl'),
+    'lightgbm': joblib.load('models/lightgbm_model.pkl'),
+    'catboost': joblib.load('models/catboost_model.pkl')}   
+ 
 @router.post("", tags=["Predictor"])
 def predict(property: PredictionInput):
-    models = {
-        'xgboost': joblib.load('models/xgboost_model.pkl'),
-        'random_forest': joblib.load('models/random_forest_model.pkl'),
-        'lightgbm': joblib.load('models/lightgbm_model.pkl'),
-        'catboost': joblib.load('models/catboost_model.pkl')}
+
     
     df = property.to_df()
     predictions = []

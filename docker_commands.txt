@@ -1,0 +1,23 @@
+Docker commands
+
+To delete everything :
+
+docker system prune -a
+
+To build :
+
+docker build -t immoeliza-deploy .
+
+To run :
+
+docker run -p 8000:8000 immoeliza-deploy
+
+
+How to build and then push to docker hub :
+
+docker buildx build --platform linux/amd64 -t meme29/immoeliza:latest --push .
+
+or (arm and amd)
+
+docker buildx build --platform linux/amd64,linux/arm64 -t meme29/immoeliza:latest --push .
+

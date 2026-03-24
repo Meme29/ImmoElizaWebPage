@@ -202,7 +202,8 @@
     <div class="field-grid">
       <div class="field">
         <label for="locality">City / Municipality</label>
-        <input type="text" id="locality" placeholder="ex: Namur"/>
+        <input type="text" id="locality" list="localities-list" placeholder="ex: Namur" autocomplete="off"/>
+        <datalist id="localities-list"></datalist>
       </div>
       <div class="field">
         <label for="zip_code">Postal code</label>
@@ -274,13 +275,12 @@
       <div class="toggle"><input type="checkbox" id="garden"/><label for="garden"> Garden</label></div>
       <div class="toggle"><input type="checkbox" id="terrace"/><label for="terrace"> Terrace</label></div>
       <div class="toggle"><input type="checkbox" id="swimming_pool"/><label for="swimming_pool"> Pool</label></div>
-      <div class="toggle"><input type="checkbox" id="furnished"/><label for="furnished"> Furnished</label></div>
+      <!-- <div class="toggle"><input type="checkbox" id="furnished"/><label for="furnished"> Furnished</label></div>
       <div class="toggle"><input type="checkbox" id="equipped_kitchen"/><label for="equipped_kitchen"> Fitted kitchen</label></div>
-      <div class="toggle"><input type="checkbox" id="open_fire"/><label for="open_fire"> Open fire</label></div>
+      <div class="toggle"><input type="checkbox" id="open_fire"/><label for="open_fire"> Open fire</label></div> -->
     </div>
 
     <button class="btn-submit" id="btn-estimate" onclick="estimate()">Estimate price</button>
-    <div class="error-box" id="error-box"></div>
   </div>
 
   <!-- RESULT PANEL -->
@@ -301,6 +301,8 @@
           <div class="result-placeholder-icon"></div>
           <p>Your estimate will appear here once you have filled in the form.</p>
         </div>
+
+        <div class="error-box" id="error-box"></div>
 
         <div class="price-display" id="price-display">
           <div class="price-main">
@@ -331,13 +333,73 @@
 
   function showError(msg) {
     const box = document.getElementById('error-box');
-    box.textContent = msg;
+    box.textContent = '⚠ ' + msg;
     box.classList.add('show');
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('price-display').classList.remove('show');
   }
 
-  function hideError() { document.getElementById('error-box').classList.remove('show'); }
+  function hideError() {
+    document.getElementById('error-box').classList.remove('show');
+  }
   function val(id)     { return document.getElementById(id).value; }
   function checked(id) { return document.getElementById(id).checked; }
+
+  const subtypesByType = {
+    'House': [
+      ['HOUSE',        'House'],
+      ['VILLA',        'Villa'],
+      ['BUNGALOW',     'Bungalow'],
+      ['COTTAGE',      'Cottage'],
+      ['MANOR_HOUSE',  'Manor house'],
+      ['CHALET',       'Chalet'],
+      ['MANSION',      'Mansion'],
+    ],
+    'Apartment': [
+      ['APARTMENT',         'Apartment'],
+      ['DUPLEX',            'Duplex'],
+      ['TRIPLEX',           'Triplex'],
+      ['MIXED_USE_BUILDING','Mixed-use building'],
+      ['RESIDENCE',         'Residence'],
+      ['GROUND_FLOOR',      'Ground floor'],
+      ['PENTHOUSE',         'Penthouse'],
+      ['STUDIO',            'Studio'],
+      ['LOFT',              'Loft'],
+    ]
+  };
+
+  function updateSubtypes() {
+    const type    = document.getElementById('property_type').value;
+    const select  = document.getElementById('subtype');
+    const options = subtypesByType[type] || [];
+
+    select.innerHTML = options
+      .map(([v, l]) => `<option value="${v}">${l}</option>`)
+      .join('');
+  }
+
+  document.getElementById('property_type').addEventListener('change', updateSubtypes);
+  updateSubtypes();
+
+  // Autocomplete locality → zip
+  const localityData = {};
+  fetch('/preprocess/localities')
+    .then(r => r.json())
+    .then(data => {
+      const datalist = document.getElementById('localities-list');
+      data.localities.forEach(item => {
+        localityData[item.locality.toLowerCase()] = item.zip_code;
+        const option = document.createElement('option');
+        option.value = item.locality;
+        datalist.appendChild(option);
+      });
+    })
+    .catch(() => {});
+
+  document.getElementById('locality').addEventListener('input', (e) => {
+    const zip = localityData[e.target.value.toLowerCase()];
+    if (zip) document.getElementById('zip_code').value = zip;
+  });
 
   async function estimate() {
     hideError();
@@ -363,10 +425,10 @@
       land_area:        parseInt(val('land_area')) || 0,
       garden:           checked('garden'),
       garden_area:      0,
-      equipped_kitchen: checked('equipped_kitchen'),
+      equipped_kitchen: 0,
       swimming_pool:    checked('swimming_pool'),
-      furnished:        checked('furnished'),
-      open_fire:        checked('open_fire'),
+      furnished:        0,
+      open_fire:        0,
       terrace:          checked('terrace'),
       terrace_area:     0,
       facades_number:   parseInt(val('facades_number')) || 0,
@@ -425,7 +487,6 @@
     } catch (err) {
       showError(err.message);
       setStep(0, 'An error occurred');
-      document.getElementById('placeholder').style.display = 'block';
     } finally {
       btn.disabled = false;
       btn.innerHTML = 'Estimate price';
