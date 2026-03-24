@@ -68,10 +68,28 @@ _postal_df = None
 
 def _get_postal_df():
     global _postal_df
+
     if _postal_df is None:
         df = pd.read_csv('data/postal_codes_clean.csv')
-        df['locality_norm'] = df['locality'].str.lower().str.strip()
+
+        # Nettoyage des colonnes (au cas où)
+        for col in ['locality', 'locality_fr', 'locality_nl']:
+            if col in df.columns:
+                df[col] = df[col].astype(str).str.strip()
+                df[col] = df[col].replace({'': None, 'nan': None}) # type: ignore
+
+        # Priorité : locality > fr > nl
+        df['locality_final'] = (
+            df['locality']
+            .combine_first(df.get('locality_fr')) # type: ignore
+            .combine_first(df.get('locality_nl')) # type: ignore
+        )
+
+        # Normalisation
+        df['locality_norm'] = df['locality_final'].str.lower().str.strip()
+
         _postal_df = df
+
     return _postal_df
 
 def validate_locality_zip(locality: str, zip_code: int) -> str | None:

@@ -31,7 +31,7 @@ class PropertyInput(BaseModel):
 @router.get("/localities")
 def get_all_localities():
     df = _get_postal_df()
-    result = df[['locality', 'zip_code']].drop_duplicates(subset=['locality']).dropna()
+    result = df[['locality', 'zip_code']].drop_duplicates(subset=['locality']).dropna().sort_values('locality')
     return {"localities": result.to_dict(orient='records')}
 
 

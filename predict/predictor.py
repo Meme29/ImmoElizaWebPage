@@ -41,10 +41,11 @@ import warnings
 warnings.filterwarnings('ignore')
 
 models = {
-    'xgboost': joblib.load('models/xgboost_model.pkl'),
     'random_forest': joblib.load('models/random_forest_model.pkl'),
+    'xgboost': joblib.load('models/xgboost_model.pkl'),
     'lightgbm': joblib.load('models/lightgbm_model.pkl'),
-    'catboost': joblib.load('models/catboost_model.pkl')}   
+    'catboost': joblib.load('models/catboost_model.pkl')
+}   
  
 @router.post("", tags=["Predictor"])
 def predict(property: PredictionInput):

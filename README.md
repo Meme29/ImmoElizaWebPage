@@ -22,8 +22,9 @@ uvicorn main:app --reload
 📦 project  
 ├── 🚀 main.py                # API FastAPI (entry point)   
 │  
-├── 📂 data                  # Computed distances between cities and 5 big cities of Belgium  
-│   └── distances.csv  
+├── 📂 data                  
+│   ├── distances.csv         # Computed distances between cities and 5 big cities of Belgium 
+│   └── postal_codes.csv      # List of postal codes and Locality names 
 │  
 ├── 📂 pages                 # Frontend (HTML)  
 │   └── homepage.html  
@@ -35,7 +36,7 @@ uvicorn main:app --reload
 ├── 📂 predicts              # Predictions  
 │   └── predictor.py  
 │  
-├── 📂 models                # trained models  
+├── 📂 models                # Trained models  
 │   ├── random_forest_model.pkl  
 │   └── ...  
 

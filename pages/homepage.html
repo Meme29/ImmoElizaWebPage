@@ -15,7 +15,6 @@
       --accent-lt: #f0ddd0;
       --border:    #e2d9ce;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -96,7 +95,7 @@
     input::-webkit-inner-spin-button { -webkit-appearance: none; }
     input:focus, select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(200,98,42,0.1);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
 
     .toggle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
@@ -256,7 +255,7 @@
       </div>
       <div class="field">
         <label for="facades_number">Number of facades</label>
-        <input type="number" id="facades_number" placeholder="e.g. 4" value="0"/>
+        <input type="number" id="facades_number" placeholder="e.g. 4" value="4"/>
       </div>
       <div class="field full">
         <label for="building_state">Building condition</label>
@@ -360,7 +359,6 @@
       ['DUPLEX',            'Duplex'],
       ['TRIPLEX',           'Triplex'],
       ['MIXED_USE_BUILDING','Mixed-use building'],
-      ['RESIDENCE',         'Residence'],
       ['GROUND_FLOOR',      'Ground floor'],
       ['PENTHOUSE',         'Penthouse'],
       ['STUDIO',            'Studio'],
