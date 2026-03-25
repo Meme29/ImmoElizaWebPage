@@ -785,7 +785,7 @@
       // ── Summary ──
       var stateEl = document.getElementById('building_state');
       var items = [
-        ['Type',      val('property_type') === 'House' ? 'House' : 'Apartment'],
+        ['Type',      val('property_type').toLowerCase() === 'house' ? 'House' : 'Apartment'],
         ['Area',      val('area') + ' m²'],
         ['Bedrooms',  val('rooms_number')],
         ['Condition', stateEl.options[stateEl.selectedIndex].text],
