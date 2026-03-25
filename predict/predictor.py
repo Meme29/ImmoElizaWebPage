@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 import pandas as pd
 import joblib
+import numpy as np
 
 router = APIRouter()
 
@@ -49,15 +50,21 @@ models = {
  
 @router.post("", tags=["Predictor"])
 def predict(property: PredictionInput):
-
-    
     df = property.to_df()
     predictions = []
 
     for name, model in models.items():
         prediction = model.predict(df)[0]
-        predictions.append(prediction)
-    # mean
-    result = sum(predictions) / len(predictions)
-    
-    return {"predicted_price": float(result)}
+        predictions.append(float(prediction))
+
+    mean_price = np.mean(predictions)
+    std_price  = np.std(predictions)
+
+    return {
+        "predicted_price": mean_price,
+        "confidence_interval": {
+            "low":  round(mean_price - 2 * std_price, 2),
+            "high": round(mean_price + 2 * std_price, 2),
+        },
+        "std_dev": round(std_price, 2),
+    }

@@ -10,7 +10,7 @@
       --bg:        #f5f0e8;
       --surface:   #ffffff;
       --ink:       #1a1510;
-      --muted:     #8a7f72;
+      --muted:     #413f3d;
       --accent:    #c8622a;
       --accent-lt: #f0ddd0;
       --border:    #e2d9ce;
@@ -33,7 +33,7 @@
 
     header {
       position: relative; z-index: 1;
-      padding: 3rem 2rem 2rem;
+      padding: 2rem 2rem 1.2rem;
       max-width: 920px; margin: 0 auto;
       border-bottom: 1px solid var(--border);
       display: flex; align-items: flex-end; justify-content: space-between;
@@ -51,9 +51,9 @@
     main {
       position: relative; z-index: 1;
       max-width: 920px; margin: 0 auto;
-      padding: 3rem 2rem 6rem;
+      padding: 2rem 2rem 3rem;
       display: grid;
-      grid-template-columns: 1fr 320px;
+      grid-template-columns: 1.3fr 1fr;
       gap: 3rem;
       align-items: start;
     }
@@ -62,15 +62,15 @@
 
     .form-title {
       font-family: 'Playfair Display', serif;
-      font-size: 1.9rem; font-weight: 700;
-      line-height: 1.2; margin-bottom: 0.4rem;
+      font-size: 1.5rem; font-weight: 700;
+      line-height: 1.2; margin-bottom: 0.2rem;
     }
     .form-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; font-weight: 300; }
 
     .section-label {
       font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
       font-weight: 600; color: var(--accent);
-      margin: 1.75rem 0 0.9rem;
+      margin: 1.2rem 0 0.6rem;
       display: flex; align-items: center; gap: 0.6rem;
     }
     .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
@@ -79,7 +79,7 @@
     .field-grid .full { grid-column: 1 / -1; }
     .field { display: flex; flex-direction: column; gap: 0.3rem; }
 
-    label { font-size: 0.72rem; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; }
+    label { font-size: 0.85rem; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; }
 
     input[type="text"], input[type="number"], select {
       background: var(--surface);
@@ -162,6 +162,27 @@
     .price-currency { font-size: 1.2rem; font-weight: 400; vertical-align: super; margin-right: 2px; }
     .price-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; }
 
+    .ci-block {
+      margin-top: 1rem; padding: 0.9rem 1rem;
+      background: var(--accent-lt); border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .ci-title {
+      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); font-weight: 600; margin-bottom: 0.6rem;
+    }
+    .ci-range {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.88rem; font-weight: 600;
+    }
+    .ci-range-bar {
+      flex: 1; height: 3px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--border), var(--accent));
+    }
+    .ci-std {
+      font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; text-align: center;
+    }
+
     .summary-item {
       display: flex; justify-content: space-between; align-items: center;
       padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;
@@ -194,7 +215,7 @@
 
   <!-- FORM -->
   <div>
-    <h1 class="form-title">Estimate your<br>property</h1>
+    <h1 class="form-title">Estimate your property</h1>
     <p class="form-sub">Fill in the details of your property to get an instant valuation.</p>
 
     <div class="section-label">Location</div>
@@ -255,7 +276,12 @@
       </div>
       <div class="field">
         <label for="facades_number">Number of facades</label>
-        <input type="number" id="facades_number" placeholder="e.g. 4" value="4"/>
+          <select id="facades_number">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+          </select>
       </div>
       <div class="field full">
         <label for="building_state">Building condition</label>
@@ -311,6 +337,16 @@
               <span id="price-val">-</span>
             </div>
             <div class="price-meta" id="price-meta"></div>
+          </div>
+
+          <div class="ci-block" id="ci-block" style="display:none">
+            <div class="ci-title">Estimated range</div>
+            <div class="ci-range">
+              <span id="ci-low">—</span>
+              <div class="ci-range-bar"></div>
+              <span id="ci-high">—</span>
+            </div>
+            <div class="ci-std" id="ci-std"></div>
           </div>
           <div id="summary"></div>
         </div>
@@ -466,6 +502,16 @@
         new Intl.NumberFormat('fr-BE').format(Math.round(predData.predicted_price));
       document.getElementById('price-meta').textContent =
         `${val('locality')} - ${val('area')} m2`;
+
+      // Confidence interval
+      if (predData.confidence_interval) {
+        const fmt = n => new Intl.NumberFormat('fr-BE').format(Math.round(n)) + ' €';
+        document.getElementById('ci-low').textContent  = fmt(predData.confidence_interval.low);
+        document.getElementById('ci-high').textContent = fmt(predData.confidence_interval.high);
+        document.getElementById('ci-std').textContent  =
+          `± ${new Intl.NumberFormat('fr-BE').format(Math.round(predData.std_dev))} € std deviation`;
+        document.getElementById('ci-block').style.display = 'block';
+      }
 
       const stateLabel = document.getElementById('building_state');
       const items = [

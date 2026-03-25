@@ -45,7 +45,7 @@ def get_distances(locality: str, distances_path: str = 'data/distances.csv') -> 
     from geopy.extra.rate_limiter import RateLimiter
 
     geolocator = Nominatim(user_agent="my_app")
-    geocode    = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+    geocode    = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=3, error_wait_seconds=1.0)
     location   = geocode(f"{locality}, Belgium")
 
     if not location:
