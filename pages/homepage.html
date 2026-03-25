@@ -1,20 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ImmoEliza - Estimation</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
+    /* ══════════════════════════════
+       LIGHT THEME (default)
+    ══════════════════════════════ */
     :root {
-      --bg:        #f5f0e8;
-      --surface:   #ffffff;
-      --ink:       #1a1510;
-      --muted:     #413f3d;
-      --accent:    #c8622a;
-      --accent-lt: #f0ddd0;
-      --border:    #e2d9ce;
+      --bg:             #f5f0e8;
+      --surface:        #ffffff;
+      --surface-strong: #ffffff;
+      --surface-soft:   #f0ddd0;
+      --ink:            #1a1510;
+      --muted:          #413f3d;
+      --accent:         #c8622a;
+      --accent-lt:      #f0ddd0;
+      --border:         #e2d9ce;
+      --shadow:         0 8px 32px rgba(0,0,0,0.08);
+      --select-bg:      #ffffff;
+      --step-active:    #c8622a;
+      --step-done:      #1a1510;
+      --ci-bar:         linear-gradient(90deg, #e2d9ce, #c8622a);
+      --section-color:  #c8622a;
+      --result-header-bg: #1a1510;
     }
+
+    /* ══════════════════════════════
+       DARK THEME
+    ══════════════════════════════ */
+    [data-theme="dark"] {
+      --bg:             #050816;
+      --surface:        rgba(12, 18, 48, 0.78);
+      --surface-strong: rgba(17, 24, 62, 0.92);
+      --surface-soft:   rgba(111, 65, 255, 0.16);
+      --ink:            #eef2ff;
+      --muted:          #98a5d4;
+      --accent:         #8b5cf6;
+      --accent-lt:      rgba(139, 92, 246, 0.24);
+      --border:         rgba(126, 151, 255, 0.18);
+      --shadow:         0 24px 80px rgba(2, 6, 23, 0.55);
+      --select-bg:      #0a1030;
+      --step-active:    #2dd4ff;
+      --step-done:      #8b5cf6;
+      --ci-bar:         linear-gradient(90deg, #8b5cf6, #2dd4ff);
+      --section-color:  #2dd4ff;
+      --result-header-bg: linear-gradient(135deg, rgba(139,92,246,0.35) 0%, rgba(45,212,255,0.15) 100%);
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -22,8 +57,10 @@
       color: var(--ink);
       font-family: 'Outfit', sans-serif;
       min-height: 100vh;
+      transition: background 0.35s, color 0.35s;
     }
 
+    /* Noise texture */
     body::before {
       content: '';
       position: fixed; inset: 0;
@@ -31,6 +68,18 @@
       pointer-events: none; z-index: 0; opacity: 0.5;
     }
 
+    /* Dark nebula — only visible in dark mode */
+    [data-theme="dark"] body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 30%, rgba(139,92,246,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 70%, rgba(45,212,255,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 30% at 60% 10%, rgba(244,114,255,0.07) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── HEADER ── */
     header {
       position: relative; z-index: 1;
       padding: 2rem 2rem 1.2rem;
@@ -38,16 +87,44 @@
       border-bottom: 1px solid var(--border);
       display: flex; align-items: flex-end; justify-content: space-between;
       gap: 1rem; flex-wrap: wrap;
+      transition: border-color 0.35s;
     }
+
+    .header-left { display: flex; flex-direction: column; gap: 0.2rem; }
 
     .logo {
       font-family: 'Playfair Display', serif;
       font-size: 2rem; font-weight: 900;
       letter-spacing: -0.02em; line-height: 1;
     }
-    .logo span { color: var(--accent); }
+    /* Light: solid accent color */
+    .logo span { color: var(--accent); transition: color 0.35s; }
+
+    /* Dark: gradient text */
+    [data-theme="dark"] .logo span {
+      background: linear-gradient(135deg, #8b5cf6 0%, #2dd4ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
     .tagline { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; }
 
+    /* ── THEME TOGGLE ── */
+    .theme-toggle {
+      display: flex; align-items: center; justify-content: center;
+      width: 2.2rem; height: 2.2rem;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+      line-height: 1;
+    }
+    .theme-toggle:hover { border-color: var(--accent); transform: rotate(20deg) scale(1.1); }
+
+    /* ── MAIN GRID ── */
     main {
       position: relative; z-index: 1;
       max-width: 920px; margin: 0 auto;
@@ -60,6 +137,7 @@
 
     @media (max-width: 720px) { main { grid-template-columns: 1fr; } }
 
+    /* ── FORM TITLE ── */
     .form-title {
       font-family: 'Playfair Display', serif;
       font-size: 1.5rem; font-weight: 700;
@@ -69,17 +147,18 @@
 
     .section-label {
       font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
-      font-weight: 600; color: var(--accent);
+      font-weight: 600; color: var(--section-color);
       margin: 1.2rem 0 0.6rem;
       display: flex; align-items: center; gap: 0.6rem;
+      transition: color 0.35s;
     }
-    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); transition: background 0.35s; }
 
     .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .field-grid .full { grid-column: 1 / -1; }
     .field { display: flex; flex-direction: column; gap: 0.3rem; }
 
-    label { font-size: 0.85rem; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; }
+    label { font-size: 0.85rem; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; transition: color 0.35s; }
 
     input[type="text"], input[type="number"], select {
       background: var(--surface);
@@ -89,13 +168,23 @@
       font-family: 'Outfit', sans-serif;
       font-size: 0.9rem; color: var(--ink);
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.35s, color 0.35s;
       width: 100%;
     }
+    [data-theme="dark"] input[type="text"],
+    [data-theme="dark"] input[type="number"],
+    [data-theme="dark"] select { backdrop-filter: blur(8px); }
+
+    select option { background: var(--select-bg); color: var(--ink); }
     input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
     input:focus, select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+      box-shadow: 0 0 0 3px rgba(200,98,42,0.12);
+    }
+    [data-theme="dark"] input:focus,
+    [data-theme="dark"] select:focus {
+      box-shadow: 0 0 0 3px rgba(139,92,246,0.2), 0 0 16px rgba(45,212,255,0.12);
     }
 
     .toggle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
@@ -107,19 +196,38 @@
       cursor: pointer; font-size: 0.78rem; font-weight: 500; color: var(--muted);
       transition: all 0.15s; user-select: none;
     }
-    .toggle input:checked + label { background: var(--accent-lt); border-color: var(--accent); color: var(--accent); }
+    [data-theme="dark"] .toggle label { backdrop-filter: blur(8px); }
+    .toggle input:checked + label {
+      background: var(--accent-lt);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    [data-theme="dark"] .toggle input:checked + label {
+      box-shadow: 0 0 12px rgba(139,92,246,0.2);
+    }
 
+    /* ── SUBMIT BUTTON ── */
     .btn-submit {
       width: 100%; margin-top: 2rem; padding: 1rem;
       background: var(--ink); color: var(--bg);
       border: none; border-radius: 8px;
       font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 600;
       letter-spacing: 0.03em; cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
     }
     .btn-submit:hover { background: var(--accent); transform: translateY(-1px); }
+
+    [data-theme="dark"] .btn-submit {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6d38e0 100%);
+      color: #fff;
+      box-shadow: 0 4px 24px rgba(139,92,246,0.35);
+    }
+    [data-theme="dark"] .btn-submit:hover {
+      opacity: 0.9;
+      box-shadow: 0 8px 32px rgba(139,92,246,0.5);
+    }
     .btn-submit:active { transform: translateY(0); }
-    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-submit:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .loader {
       display: inline-block; width: 14px; height: 14px;
@@ -129,25 +237,50 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Result panel */
+    /* ── RESULT PANEL ── */
     .result-panel { position: sticky; top: 2rem; }
 
-    .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .result-card {
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: background 0.35s, border-color 0.35s, box-shadow 0.35s;
+    }
+    [data-theme="dark"] .result-card { backdrop-filter: blur(16px); }
 
-    .result-header { background: var(--ink); padding: 1.25rem 1.5rem; color: var(--bg); }
-    .result-header-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.5; margin-bottom: 0.3rem; }
-    .result-header-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+    .result-header {
+      background: var(--result-header-bg);
+      padding: 1.25rem 1.5rem;
+      transition: background 0.35s;
+    }
+    [data-theme="dark"] .result-header { border-bottom: 1px solid var(--border); }
+
+    .result-header-label {
+      font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+    /* Light: white on dark header */
+    .result-header-label { color: rgba(245,240,232,0.55); }
+    [data-theme="dark"] .result-header-label { color: #2dd4ff; opacity: 1; }
+
+    .result-header-title {
+      font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700;
+    }
+    .result-header-title { color: #f5f0e8; }
+    [data-theme="dark"] .result-header-title { color: #eef2ff; }
 
     .result-body { padding: 1.5rem; }
 
     .steps { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; }
-    .step { flex: 1; height: 3px; border-radius: 2px; background: var(--border); transition: background 0.4s; }
-    .step.active { background: var(--accent); }
-    .step.done   { background: var(--ink); }
-    .step-label  { font-size: 0.7rem; color: var(--muted); margin-bottom: 1rem; min-height: 1rem; }
+    .step { flex: 1; height: 3px; border-radius: 2px; background: var(--border); transition: background 0.4s, box-shadow 0.4s; }
+    .step.active { background: var(--step-active); }
+    [data-theme="dark"] .step.active { box-shadow: 0 0 8px rgba(45,212,255,0.4); }
+    .step.done { background: var(--step-done); }
+    .step-label { font-size: 0.7rem; color: var(--muted); margin-bottom: 1rem; min-height: 1rem; }
 
     .result-placeholder { text-align: center; padding: 2rem 1rem; color: var(--muted); }
-    .result-placeholder-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.3; }
+    .result-placeholder-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.35; }
     .result-placeholder p { font-size: 0.85rem; line-height: 1.5; }
 
     .price-display { display: none; }
@@ -158,43 +291,69 @@
       border-bottom: 1px solid var(--border); margin-bottom: 1.25rem;
     }
     .price-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
-    .price-value { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 900; color: var(--accent); line-height: 1; }
+
+    .price-value {
+      font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 900;
+      color: var(--accent); line-height: 1;
+      transition: color 0.35s;
+    }
+    [data-theme="dark"] .price-value {
+      background: linear-gradient(135deg, #8b5cf6 0%, #2dd4ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .price-currency { font-size: 1.2rem; font-weight: 400; vertical-align: super; margin-right: 2px; }
     .price-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; }
 
+    /* ── CONFIDENCE INTERVAL ── */
     .ci-block {
       margin-top: 1rem; padding: 0.9rem 1rem;
       background: var(--accent-lt); border-radius: 8px;
       border: 1px solid var(--border);
+      transition: background 0.35s, border-color 0.35s;
     }
+    [data-theme="dark"] .ci-block { border-color: rgba(139,92,246,0.3); }
+
     .ci-title {
       font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--muted); font-weight: 600; margin-bottom: 0.6rem;
+      font-weight: 600; margin-bottom: 0.6rem;
+      color: var(--section-color);
+      transition: color 0.35s;
     }
     .ci-range {
       display: flex; align-items: center; gap: 0.6rem;
-      font-size: 0.88rem; font-weight: 600;
+      font-size: 0.88rem; font-weight: 600; color: var(--ink);
     }
     .ci-range-bar {
       flex: 1; height: 3px; border-radius: 2px;
-      background: linear-gradient(90deg, var(--border), var(--accent));
+      background: var(--ci-bar);
+      transition: background 0.35s, box-shadow 0.35s;
     }
-    .ci-std {
-      font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; text-align: center;
-    }
+    [data-theme="dark"] .ci-range-bar { box-shadow: 0 0 8px rgba(45,212,255,0.3); }
+    .ci-std { font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; text-align: center; }
 
+    /* ── SUMMARY ── */
     .summary-item {
       display: flex; justify-content: space-between; align-items: center;
       padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem;
+      transition: border-color 0.35s;
     }
     .summary-item:last-child { border-bottom: none; }
     .summary-key { color: var(--muted); }
     .summary-val { font-weight: 600; }
 
+    /* ── ERROR ── */
     .error-box {
-      display: none; background: #fdf0ee; border: 1px solid #f0c4bb;
+      display: none;
+      background: #fdf0ee; border: 1px solid #f0c4bb;
       border-radius: 8px; padding: 1rem; font-size: 0.82rem;
       color: #8b2f1f; margin-top: 1rem; line-height: 1.5;
+    }
+    [data-theme="dark"] .error-box {
+      background: rgba(244,63,94,0.1);
+      border-color: rgba(244,63,94,0.3);
+      color: #fb7185;
     }
     .error-box.show { display: block; }
 
@@ -207,8 +366,11 @@
 <body>
 
 <header>
-  <div class="logo">Immo<span>Eliza</span></div>
-  <div class="tagline">Property Valuation - Belgium</div>
+  <div class="header-left">
+    <div class="logo">Immo<span>Eliza</span></div>
+    <div class="tagline">Property Valuation - Belgium</div>
+  </div>
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀️</button>
 </header>
 
 <main>
@@ -242,17 +404,7 @@
       </div>
       <div class="field">
         <label for="subtype">Subtype</label>
-        <select id="subtype">
-          <option value="HOUSE">House</option>
-          <option value="VILLA">Villa</option>
-          <option value="APARTMENT">Apartment</option>
-          <option value="DUPLEX">Duplex</option>
-          <option value="TRIPLEX">Triplex</option>
-          <option value="BUNGALOW">Bungalow</option>
-          <option value="COTTAGE">Cottage</option>
-          <option value="MANOR_HOUSE">Manor house</option>
-          <option value="MIXED_USE_BUILDING">Mixed-use building</option>
-        </select>
+        <select id="subtype"></select>
       </div>
     </div>
 
@@ -276,12 +428,12 @@
       </div>
       <div class="field">
         <label for="facades_number">Number of facades</label>
-          <select id="facades_number">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4" selected>4</option>
-          </select>
+        <select id="facades_number">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+        </select>
       </div>
       <div class="field full">
         <label for="building_state">Building condition</label>
@@ -297,12 +449,9 @@
 
     <div class="section-label">Options</div>
     <div class="toggle-grid">
-      <div class="toggle"><input type="checkbox" id="garden"/><label for="garden"> Garden</label></div>
-      <div class="toggle"><input type="checkbox" id="terrace"/><label for="terrace"> Terrace</label></div>
-      <div class="toggle"><input type="checkbox" id="swimming_pool"/><label for="swimming_pool"> Pool</label></div>
-      <!-- <div class="toggle"><input type="checkbox" id="furnished"/><label for="furnished"> Furnished</label></div>
-      <div class="toggle"><input type="checkbox" id="equipped_kitchen"/><label for="equipped_kitchen"> Fitted kitchen</label></div>
-      <div class="toggle"><input type="checkbox" id="open_fire"/><label for="open_fire"> Open fire</label></div> -->
+      <div class="toggle"><input type="checkbox" id="garden"/><label for="garden">🌿 Garden</label></div>
+      <div class="toggle"><input type="checkbox" id="terrace"/><label for="terrace">☀️ Terrace</label></div>
+      <div class="toggle"><input type="checkbox" id="swimming_pool"/><label for="swimming_pool">🏊 Pool</label></div>
     </div>
 
     <button class="btn-submit" id="btn-estimate" onclick="estimate()">Estimate price</button>
@@ -323,7 +472,7 @@
         <div class="step-label" id="step-label">Fill in the form</div>
 
         <div class="result-placeholder" id="placeholder">
-          <div class="result-placeholder-icon"></div>
+          <div class="result-placeholder-icon">🏠</div>
           <p>Your estimate will appear here once you have filled in the form.</p>
         </div>
 
@@ -340,7 +489,7 @@
           </div>
 
           <div class="ci-block" id="ci-block" style="display:none">
-            <div class="ci-title">Estimated range</div>
+            <div class="ci-title">Confidence interval</div>
             <div class="ci-range">
               <span id="ci-low">—</span>
               <div class="ci-range-bar"></div>
@@ -348,6 +497,7 @@
             </div>
             <div class="ci-std" id="ci-std"></div>
           </div>
+
           <div id="summary"></div>
         </div>
 
@@ -358,14 +508,41 @@
 </main>
 
 <script>
+  /* ══════════════════════════════
+     THEME TOGGLE
+  ══════════════════════════════ */
+  function toggleTheme() {
+    const html   = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next   = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = next === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('immoeliza-theme', next);
+  }
+
+  // Restore saved preference on load
+  (function () {
+    const saved = localStorage.getItem('immoeliza-theme');
+    if (saved === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.getElementById('theme-toggle').textContent = '🌙';
+    }
+  })();
+
+  /* ══════════════════════════════
+     STEPS
+  ══════════════════════════════ */
   function setStep(n, label) {
     document.getElementById('step-label').textContent = label;
     for (let i = 1; i <= 2; i++) {
-      const el = document.getElementById(`step-${i}`);
+      const el = document.getElementById('step-' + i);
       el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
     }
   }
 
+  /* ══════════════════════════════
+     ERROR
+  ══════════════════════════════ */
   function showError(msg) {
     const box = document.getElementById('error-box');
     box.textContent = '⚠ ' + msg;
@@ -373,32 +550,38 @@
     document.getElementById('placeholder').style.display = 'none';
     document.getElementById('price-display').classList.remove('show');
   }
-
   function hideError() {
     document.getElementById('error-box').classList.remove('show');
   }
+
+  /* ══════════════════════════════
+     HELPERS
+  ══════════════════════════════ */
   function val(id)     { return document.getElementById(id).value; }
   function checked(id) { return document.getElementById(id).checked; }
 
+  /* ══════════════════════════════
+     SUBTYPES
+  ══════════════════════════════ */
   const subtypesByType = {
     'House': [
-      ['HOUSE',        'House'],
-      ['VILLA',        'Villa'],
-      ['BUNGALOW',     'Bungalow'],
-      ['COTTAGE',      'Cottage'],
-      ['MANOR_HOUSE',  'Manor house'],
-      ['CHALET',       'Chalet'],
-      ['MANSION',      'Mansion'],
+      ['HOUSE',       'House'],
+      ['VILLA',       'Villa'],
+      ['BUNGALOW',    'Bungalow'],
+      ['COTTAGE',     'Cottage'],
+      ['MANOR_HOUSE', 'Manor house'],
+      ['CHALET',      'Chalet'],
+      ['MANSION',     'Mansion'],
     ],
     'Apartment': [
-      ['APARTMENT',         'Apartment'],
-      ['DUPLEX',            'Duplex'],
-      ['TRIPLEX',           'Triplex'],
-      ['MIXED_USE_BUILDING','Mixed-use building'],
-      ['GROUND_FLOOR',      'Ground floor'],
-      ['PENTHOUSE',         'Penthouse'],
-      ['STUDIO',            'Studio'],
-      ['LOFT',              'Loft'],
+      ['APARTMENT',          'Apartment'],
+      ['DUPLEX',             'Duplex'],
+      ['TRIPLEX',            'Triplex'],
+      ['MIXED_USE_BUILDING', 'Mixed-use building'],
+      ['GROUND_FLOOR',       'Ground floor'],
+      ['PENTHOUSE',          'Penthouse'],
+      ['STUDIO',             'Studio'],
+      ['LOFT',               'Loft'],
     ]
   };
 
@@ -406,50 +589,66 @@
     const type    = document.getElementById('property_type').value;
     const select  = document.getElementById('subtype');
     const options = subtypesByType[type] || [];
-
     select.innerHTML = options
-      .map(([v, l]) => `<option value="${v}">${l}</option>`)
+      .map(function(o) { return '<option value="' + o[0] + '">' + o[1] + '</option>'; })
       .join('');
   }
 
   document.getElementById('property_type').addEventListener('change', updateSubtypes);
   updateSubtypes();
 
-  // Autocomplete locality → zip
-  const localityData = {};
+  /* ══════════════════════════════
+     LOCALITY ↔ ZIP AUTOCOMPLETE
+     (bidirectionnel — from dark version)
+  ══════════════════════════════ */
+  var localityData = {};
+  var zipData      = {};
+
   fetch('/preprocess/localities')
-    .then(r => r.json())
-    .then(data => {
-      const datalist = document.getElementById('localities-list');
-      data.localities.forEach(item => {
-        localityData[item.locality.toLowerCase()] = item.zip_code;
-        const option = document.createElement('option');
-        option.value = item.locality;
-        datalist.appendChild(option);
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var datalist = document.getElementById('localities-list');
+      data.localities.forEach(function(item) {
+        var loc = item.locality;
+        var zip = item.zip_code.toString();
+        localityData[loc.toLowerCase()] = zip;
+        zipData[zip] = loc;
+        var opt = document.createElement('option');
+        opt.value = loc;
+        datalist.appendChild(opt);
       });
     })
-    .catch(() => {});
+    .catch(function() {});
 
-  document.getElementById('locality').addEventListener('input', (e) => {
-    const zip = localityData[e.target.value.toLowerCase()];
+  document.getElementById('locality').addEventListener('input', function(e) {
+    var zip = localityData[e.target.value.toLowerCase()];
     if (zip) document.getElementById('zip_code').value = zip;
   });
 
+  document.getElementById('zip_code').addEventListener('input', function(e) {
+    var loc = zipData[e.target.value];
+    if (loc) document.getElementById('locality').value = loc;
+  });
+
+  /* ══════════════════════════════
+     ESTIMATE
+  ══════════════════════════════ */
   async function estimate() {
     hideError();
 
-    const required = { locality: 'City', zip_code: 'Postal code', area: 'Area', rooms_number: 'Bedrooms' };
-    for (const [id, name] of Object.entries(required)) {
-      if (!val(id)) { showError(`The field "${name}" is required.`); return; }
+    var required = { locality: 'City', zip_code: 'Postal code', area: 'Area', rooms_number: 'Bedrooms' };
+    for (var [id, name] of Object.entries(required)) {
+      if (!val(id)) { showError('The field "' + name + '" is required.'); return; }
     }
 
-    const btn = document.getElementById('btn-estimate');
+    var btn = document.getElementById('btn-estimate');
     btn.disabled = true;
     btn.innerHTML = '<span class="loader"></span>Processing...';
     document.getElementById('placeholder').style.display = 'none';
     document.getElementById('price-display').classList.remove('show');
+    document.getElementById('ci-block').style.display = 'none';
 
-    const payload = {
+    var payload = {
       area:             parseInt(val('area')),
       property_type:    val('property_type'),
       subtype:          val('subtype'),
@@ -470,60 +669,68 @@
     };
 
     try {
-      // Step 1 - Preprocessing
+      // Step 1 — Preprocessing
       setStep(1, 'Preprocessing data...');
-      const prepRes = await fetch('/preprocess', {
+      var prepRes = await fetch('/preprocess', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       if (!prepRes.ok) {
-        const err = await prepRes.json();
+        var err = await prepRes.json();
         throw new Error(err.detail || 'Error during preprocessing.');
       }
-      const prepData = await prepRes.json();
+      var prepData = await prepRes.json();
 
-      // Step 2 - Prediction
-      setStep(2, "Calculating estimate...");
-      const predRes = await fetch('/predict', {
+      // Step 2 — Prediction
+      setStep(2, 'Calculating estimate...');
+      var predRes = await fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(prepData)
       });
       if (!predRes.ok) {
-        const err = await predRes.json();
-        throw new Error(err.detail || 'Error during prediction.');
+        var err2 = await predRes.json();
+        throw new Error(err2.detail || 'Error during prediction.');
       }
-      const predData = await predRes.json();
+      var predData = await predRes.json();
 
-      // Display
-      setStep(3, 'Estimation complete OK');
+      // ── Price ──
+      setStep(3, 'Estimation complete ✓');
+      var fmt = function(n) { return new Intl.NumberFormat('fr-BE').format(Math.round(n)) + ' €'; };
+
       document.getElementById('price-val').textContent =
         new Intl.NumberFormat('fr-BE').format(Math.round(predData.predicted_price));
       document.getElementById('price-meta').textContent =
-        `${val('locality')} - ${val('area')} m2`;
+        val('locality') + ' · ' + val('area') + ' m²';
 
-      // Confidence interval
-      if (predData.confidence_interval) {
-        const fmt = n => new Intl.NumberFormat('fr-BE').format(Math.round(n)) + ' €';
-        document.getElementById('ci-low').textContent  = fmt(predData.confidence_interval.low);
-        document.getElementById('ci-high').textContent = fmt(predData.confidence_interval.high);
+      // ── Confidence interval ──
+      // API always returns: { predicted_price, confidence_interval: { low, high }, std_dev }
+      var ci = predData.confidence_interval;
+      if (ci && ci.low != null && ci.high != null) {
+        document.getElementById('ci-low').textContent  = fmt(ci.low);
+        document.getElementById('ci-high').textContent = fmt(ci.high);
         document.getElementById('ci-std').textContent  =
-          `± ${new Intl.NumberFormat('fr-BE').format(Math.round(predData.std_dev))} € std deviation`;
+          (predData.std_dev != null)
+            ? '± ' + new Intl.NumberFormat('fr-BE').format(Math.round(predData.std_dev)) + ' € std deviation'
+            : '';
         document.getElementById('ci-block').style.display = 'block';
       }
 
-      const stateLabel = document.getElementById('building_state');
-      const items = [
+      // ── Summary ──
+      var stateEl = document.getElementById('building_state');
+      var items = [
         ['Type',      val('property_type') === 'House' ? 'House' : 'Apartment'],
-        ['Area',      `${val('area')} m2`],
+        ['Area',      val('area') + ' m²'],
         ['Bedrooms',  val('rooms_number')],
-        ['Condition', stateLabel.options[stateLabel.selectedIndex].text],
+        ['Condition', stateEl.options[stateEl.selectedIndex].text],
         ['Garden',    checked('garden')        ? 'Yes' : 'No'],
         ['Pool',      checked('swimming_pool') ? 'Yes' : 'No'],
       ];
       document.getElementById('summary').innerHTML = items
-        .map(([k, v]) => `<div class="summary-item"><span class="summary-key">${k}</span><span class="summary-val">${v}</span></div>`)
+        .map(function(item) {
+          return '<div class="summary-item"><span class="summary-key">' + item[0] + '</span><span class="summary-val">' + item[1] + '</span></div>';
+        })
         .join('');
 
       document.getElementById('price-display').classList.add('show');
