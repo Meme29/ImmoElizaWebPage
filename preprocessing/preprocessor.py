@@ -88,11 +88,8 @@ def clean(property: PropertyInput):
     # ----------------------------- #
     #   One-hot encoding            #
     # ----------------------------- #
-
-    print(df['property_type'])
     df['property_type'] = df['property_type'].str.strip().str.capitalize()
     df['region'] = df['region'].str.strip().str.capitalize()
-    print(df['property_type'])
 
     df = pd.get_dummies(df, columns=['property_type', 'region'])
     df = df.astype({col: int for col in df.select_dtypes(bool).columns})
